@@ -1,0 +1,3 @@
+reference nt: 143726002
+reads nt: 4700055150
+coverage: 32.70149509898703x
