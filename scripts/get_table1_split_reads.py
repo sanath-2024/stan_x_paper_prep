@@ -103,7 +103,8 @@ with open("output/te_mapper/1_R1_001/split_reads_for_tgt.csv", "w") as out_file:
             f"{result.upstream_pos},"
             f"{result.downstream_pos},"
             f"{'+/+' if result.orientation == 'PlusPlus' else '+/-'},"
-            f"{'reference' if result.ref else 'non-reference'}\n"
+            f"{'reference' if result.ref else 'non-reference'},"
+            ",,,,,,,\n"
         )
         reads = zip_longest(result.upstream_reads, result.downstream_reads)
         for upstream, downstream in reads:
