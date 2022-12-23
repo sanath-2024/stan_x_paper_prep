@@ -4,6 +4,8 @@
 
 We used [FlyBase release 6.48](http://ftp.flybase.net/releases/FB2022_05/dmel_r6.48/fasta/) for the reference genome and reference transposon list.
 
+We used the [Transposon Sequence Set release 10.2](https://github.com/bergmanlab/drosophila-transposons/blob/master/releases/D_mel_transposon_sequence_set_v10.2.fa). We also used the canonical sequences of the SX-4 and KP elements.
+
 Reads file-name format:
 
 - X_R1_001.fastq: forward reads for tube X
