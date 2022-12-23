@@ -1,1 +1,5 @@
 target/
+
+# ignore large intermediate files that are created during processing
+output/**/*.fasta
+output/**/*.sam
