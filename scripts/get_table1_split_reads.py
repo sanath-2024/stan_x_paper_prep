@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
-from typing import List
 from itertools import zip_longest
+from typing import List
 
 
 @dataclass
