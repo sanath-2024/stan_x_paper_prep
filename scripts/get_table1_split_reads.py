@@ -34,8 +34,8 @@ cutoff = 20_000
 
 @dataclass
 class SplitReadRanges:
-    te_range: str
-    genome_range: str
+    te_range: List[int]
+    genome_range: List[int]
 
 
 @dataclass

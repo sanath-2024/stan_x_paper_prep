@@ -7,8 +7,8 @@ from PIL import Image, ImageDraw
 
 @dataclass
 class SplitReadRanges:
-    te_range: str
-    genome_range: str
+    te_range: List[int]
+    genome_range: List[int]
 
 
 @dataclass
