@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean list
 
 
 
@@ -17,8 +17,8 @@ SX4=${SX4_FOR} ${SX4_REV}
 
 
 SX4_COV=${addprefix output/fast_coverage/, ${addsuffix .txt, ${SX4}}}
-SX4_TE_MAP=${addprefix output/te_mapper/, ${addsuffix /te_mapper_output.json, 1_R1_001}}
-MISC_1=output/te_mapper/1_R1_001/split_reads_for_tgt.csv
+SX4_TE_MAP=${addprefix output/te_mapper/, ${addsuffix /te_mapper_output.json, ${SX4_FOR} ${SX4_REV}}}
+MISC_1=${addprefix output/te_mapper/, ${addsuffix /split_reads_for_tgt.csv, ${SX4_FOR} ${SX4_REV}}}
 
 TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1}
 
@@ -26,6 +26,9 @@ all: ${TARGETS}
 
 clean:
 	rm -rf output/*
+
+list:
+	@echo ${TARGETS} | xargs -n 1
 
 output/fast_coverage/%.txt:
 	@mkdir -p ${dir $@}
@@ -41,5 +44,5 @@ output/te_mapper/%/te_mapper_output.json: reads/%.fastq
 
 # extract target split reads (corresponding to SX-4 insertions into natural TE's,
 # confirmed through inverse PCR) into CSV file
-output/te_mapper/1_R1_001/split_reads_for_tgt.csv: scripts/get_table1_split_reads.py output/te_mapper/1_R1_001/te_mapper_output.json
-	python3 $<
+output/te_mapper/%/split_reads_for_tgt.csv: scripts/get_table1_split_reads.py output/te_mapper/%/te_mapper_output.json
+	python3 $< ${lastword ${subst /, , ${dir $@}}}

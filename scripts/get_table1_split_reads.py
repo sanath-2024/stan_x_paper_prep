@@ -1,7 +1,10 @@
 import json
+import sys
 from dataclasses import dataclass
 from itertools import zip_longest
 from typing import List
+
+result_folder_name = sys.argv[1]
 
 
 @dataclass
@@ -29,7 +32,7 @@ targets: List[Tgt] = [
 ]
 
 # number of bp on each side of the insertion that we allow the transposon to be
-cutoff = 20_000
+cutoff = 1_000
 
 
 @dataclass
@@ -50,7 +53,9 @@ class Result:
     downstream_reads: List[SplitReadRanges]
 
 
-with open("output/te_mapper/1_R1_001/te_mapper_output.json", "r") as in_file:
+with open(
+    f"output/te_mapper/{result_folder_name}/te_mapper_output.json", "r"
+) as in_file:
     raw = json.load(in_file)
     reads = []
     for chrom in raw:
@@ -62,18 +67,35 @@ with open("output/te_mapper/1_R1_001/te_mapper_output.json", "r") as in_file:
         read.upstream_reads = [SplitReadRanges(**x) for x in read.upstream_reads]
         read.downstream_reads = [SplitReadRanges(**x) for x in read.downstream_reads]
 
-filtered: List[Result] = []
-for tgt in targets:
-    tentative = [
-        read
-        for read in reads
-        if read.chrom == tgt.chrom
-        and read.name.startswith(tgt.te_name)
-        and (
+
+def candidate(tgt: Tgt, res: Result) -> bool:
+    """Is the result a candidate to be the target?"""
+
+    # check that it is the same transposon
+    if not res.name.startswith(tgt.te_name):
+        return False
+
+    # check that it is on the same chromosome
+    if res.chrom != tgt.chrom:
+        return False
+
+    # check the position
+    if res.ref:
+        return tgt.pos in range(res.upstream_pos, res.downstream_pos + 1)
+    else:
+        return (
             abs(read.upstream_pos - tgt.pos) <= cutoff
             or abs(read.downstream_pos - tgt.pos) <= cutoff
         )
-    ]
+
+
+filtered: List[Result] = []
+for tgt in targets:
+    # for some reason, list comprehension doesn't work here
+    tentative = []
+    for read in reads:
+        if candidate(tgt, read):
+            tentative.append(read)
     if len(tentative) > 1:
         raise RuntimeError(
             f"tentative insertion list has more than 1 element (target: {tgt})"
@@ -81,7 +103,11 @@ for tgt in targets:
     elif len(tentative) == 1:
         filtered.append((tgt, tentative[0]))
 
-with open("output/te_mapper/1_R1_001/split_reads_for_tgt.csv", "w") as out_file:
+print([f[0].name for f in filtered])
+
+with open(
+    f"output/te_mapper/{result_folder_name}/split_reads_for_tgt.csv", "w"
+) as out_file:
     out_file.write(
         "Name,"
         "TE Name,"
