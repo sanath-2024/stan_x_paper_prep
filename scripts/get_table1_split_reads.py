@@ -57,15 +57,17 @@ with open(
     f"output/te_mapper/{result_folder_name}/te_mapper_output.json", "r"
 ) as in_file:
     raw = json.load(in_file)
-    reads = []
+    results = []
     for chrom in raw:
-        for read in chrom["non_reference"]:
-            reads.append(Result(False, **read))
-        for read in chrom["reference"]:
-            reads.append(Result(True, **read))
-    for read in reads:
-        read.upstream_reads = [SplitReadRanges(**x) for x in read.upstream_reads]
-        read.downstream_reads = [SplitReadRanges(**x) for x in read.downstream_reads]
+        for result in chrom["non_reference"]:
+            results.append(Result(False, **result))
+        for result in chrom["reference"]:
+            results.append(Result(True, **result))
+    for result in results:
+        result.upstream_reads = [SplitReadRanges(**x) for x in result.upstream_reads]
+        result.downstream_reads = [
+            SplitReadRanges(**x) for x in result.downstream_reads
+        ]
 
 
 def candidate(tgt: Tgt, res: Result) -> bool:
@@ -84,26 +86,20 @@ def candidate(tgt: Tgt, res: Result) -> bool:
         return tgt.pos in range(res.upstream_pos, res.downstream_pos + 1)
     else:
         return (
-            abs(read.upstream_pos - tgt.pos) <= cutoff
-            or abs(read.downstream_pos - tgt.pos) <= cutoff
+            abs(res.upstream_pos - tgt.pos) <= cutoff
+            or abs(res.downstream_pos - tgt.pos) <= cutoff
         )
 
 
 filtered: List[Result] = []
 for tgt in targets:
-    # for some reason, list comprehension doesn't work here
-    tentative = []
-    for read in reads:
-        if candidate(tgt, read):
-            tentative.append(read)
+    tentative = [result for result in results if candidate(tgt, result)]
     if len(tentative) > 1:
         raise RuntimeError(
             f"tentative insertion list has more than 1 element (target: {tgt})"
         )
     elif len(tentative) == 1:
         filtered.append((tgt, tentative[0]))
-
-print([f[0].name for f in filtered])
 
 with open(
     f"output/te_mapper/{result_folder_name}/split_reads_for_tgt.csv", "w"
@@ -132,8 +128,8 @@ with open(
             f"{'reference' if result.ref else 'non-reference'},"
             ",,,,,,,\n"
         )
-        reads = zip_longest(result.upstream_reads, result.downstream_reads)
-        for upstream, downstream in reads:
+        results = zip_longest(result.upstream_reads, result.downstream_reads)
+        for upstream, downstream in results:
             out_file.write(",,,,,,,")
             if upstream is None:
                 out_file.write(",,,,")

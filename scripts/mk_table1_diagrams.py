@@ -1,8 +1,11 @@
 import json
+import sys
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
 from PIL import Image, ImageDraw
+
+result_folder_name = sys.argv[1]
 
 
 @dataclass
@@ -33,14 +36,15 @@ class Target:
 
 targets = [
     Target("SX4Ch7", 12_004_481, 3409),
+    Target("SX4Aq839", 16_727_569, 3409),
     Target("SX4Et8", 15_951_006, 7062),
-    Target("SX4Et49", 17_918_427),
-    Target("SX4Lv816", 4_609_605),
 ]
 
 
 def get_results() -> List[Result]:
-    with open("output/te_mapper/1_R1_001/te_mapper_output.json", "r") as in_file:
+    with open(
+        f"output/te_mapper/{result_folder_name}/te_mapper_output.json", "r"
+    ) as in_file:
         raw = json.load(in_file)
         reads = []
         for chrom in raw:
@@ -65,7 +69,7 @@ def filter_results(results: List[Result]):
                 target.result = result
                 break
         if not found:
-            raise RuntimeError(f"insertion {target.name} not found")
+            print(f"library {sys.argv[1]}: insertion {target.name} not found")
 
 
 IMAGE_HEIGHT_MARGIN_EACH_SIDE = 100
@@ -156,6 +160,8 @@ def draw_single_insertion(
 def main():
     filter_results(get_results())
     for target in targets:
+        if target.result is None:
+            continue
         result = target.result
         insertion_size = (
             target.length
@@ -178,7 +184,7 @@ def main():
                 image_height - IMAGE_HEIGHT_MARGIN_EACH_SIDE,
             ),
         )
-        image.save(f"output/te_mapper/1_R1_001/figure_{target.name}.png")
+        image.save(f"output/te_mapper/{result_folder_name}/figure_{target.name}.png")
 
 
 if __name__ == "__main__":

@@ -19,8 +19,9 @@ SX4=${SX4_FOR} ${SX4_REV}
 SX4_COV=${addprefix output/fast_coverage/, ${addsuffix .txt, ${SX4}}}
 SX4_TE_MAP=${addprefix output/te_mapper/, ${addsuffix /te_mapper_output.json, ${SX4_FOR} ${SX4_REV}}}
 MISC_1=${addprefix output/te_mapper/, ${addsuffix /split_reads_for_tgt.csv, ${SX4_FOR} ${SX4_REV}}}
+MISC_2=${addprefix output/te_mapper/, ${addsuffix /figure_SX4Ch7.png, ${SX4_FOR} ${SX4_REV}}}
 
-TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1}
+TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1} ${MISC_2}
 
 all: ${TARGETS}
 
@@ -45,4 +46,8 @@ output/te_mapper/%/te_mapper_output.json: reads/%.fastq
 # extract target split reads (corresponding to SX-4 insertions into natural TE's,
 # confirmed through inverse PCR) into CSV file
 output/te_mapper/%/split_reads_for_tgt.csv: scripts/get_table1_split_reads.py output/te_mapper/%/te_mapper_output.json
+	python3 $< ${lastword ${subst /, , ${dir $@}}}
+
+# generate TE figures
+output/te_mapper/%/figure_SX4Ch7.png: scripts/mk_table1_diagrams.py output/te_mapper/%/split_reads_for_tgt.csv
 	python3 $< ${lastword ${subst /, , ${dir $@}}}
