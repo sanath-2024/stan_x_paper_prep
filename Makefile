@@ -20,8 +20,9 @@ SX4_COV=${addprefix output/fast_coverage/, ${addsuffix .txt, ${SX4}}}
 SX4_TE_MAP=${addprefix output/te_mapper/, ${addsuffix /te_mapper_output.json, ${SX4_FOR} ${SX4_REV}}}
 MISC_1=${addprefix output/te_mapper/, ${addsuffix /split_reads_for_tgt.csv, ${SX4_FOR} ${SX4_REV}}}
 MISC_2=${addprefix output/te_mapper/, ${addsuffix /figure_SX4Ch7.png, ${SX4_FOR} ${SX4_REV}}}
+MISC_3=${addprefix output/te_mapper/, ${addsuffix /sx4et51_reads.txt, ${SX4_FOR} ${SX4_REV}}}
 
-TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1} ${MISC_2}
+TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1} ${MISC_2} ${MISC_3}
 
 all: ${TARGETS}
 
@@ -50,4 +51,8 @@ output/te_mapper/%/split_reads_for_tgt.csv: scripts/get_table1_split_reads.py ou
 
 # generate TE figures
 output/te_mapper/%/figure_SX4Ch7.png: scripts/mk_table1_diagrams.py output/te_mapper/%/split_reads_for_tgt.csv
+	python3 $< ${lastword ${subst /, , ${dir $@}}}
+
+# find SX4Et51 reads
+output/te_mapper/%/sx4et51_reads.txt: scripts/get_sx4et51_split_reads.py output/te_mapper/%/te_mapper_output.json
 	python3 $< ${lastword ${subst /, , ${dir $@}}}
