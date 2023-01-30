@@ -21,8 +21,11 @@ SX4_TE_MAP=${addprefix output/te_mapper/, ${addsuffix /te_mapper_output.json, ${
 MISC_1=${addprefix output/te_mapper/, ${addsuffix /split_reads_for_tgt.csv, ${SX4_FOR} ${SX4_REV}}}
 MISC_2=${addprefix output/te_mapper/, ${addsuffix /figure_SX4Ch7.png, ${SX4_FOR} ${SX4_REV}}}
 MISC_3=${addprefix output/te_mapper/, ${addsuffix /sx4et51_reads.txt, ${SX4_FOR} ${SX4_REV}}}
+MISC_4=${addprefix output/bwa_genome/, ${addsuffix /genome_aligned.sam, ${SX4_FOR} ${SX4_REV}}}
+MISC_5=${addprefix output/bwa_genome/, ${addsuffix /sx4et51_reads.txt, ${SX4_FOR} ${SX4_REV}}}
+MISC_6=output/bwa_genome/7_R1_001/manual_transposon_alignments.txt
 
-TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1} ${MISC_2} ${MISC_3}
+TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1} ${MISC_2} ${MISC_3} ${MISC_4} ${MISC_5} ${MISC_6}
 
 all: ${TARGETS}
 
@@ -53,6 +56,19 @@ output/te_mapper/%/split_reads_for_tgt.csv: scripts/get_table1_split_reads.py ou
 output/te_mapper/%/figure_SX4Ch7.png: scripts/mk_table1_diagrams.py output/te_mapper/%/split_reads_for_tgt.csv
 	python3 $< ${lastword ${subst /, , ${dir $@}}}
 
-# find SX4Et51 reads
+# find SX4Et51 split reads
 output/te_mapper/%/sx4et51_reads.txt: scripts/get_sx4et51_split_reads.py output/te_mapper/%/te_mapper_output.json
 	python3 $< ${lastword ${subst /, , ${dir $@}}}
+
+# do genome alignment for reads
+output/bwa_genome/%/genome_aligned.sam: reads/%.fastq
+	@mkdir -p ${dir $@}
+	bwa mem -t 8 -o $@ ref/dmel-all-chromosome-r6.48.fasta reads/${lastword ${subst /, , ${dir $@}}}.fastq
+
+# find SX4Et51 genome reads
+output/bwa_genome/%/sx4et51_reads.txt: scripts/get_sx4et51_genome_reads.py output/bwa_genome/%/genome_aligned.sam
+	python3 $< ${lastword ${subst /, , ${dir $@}}}
+
+# perform alignment of manually trimmed genome reads
+output/bwa_genome/7_R1_001/manual_transposon_alignments.txt: output/bwa_genome/7_R1_001/manually_trimmed_reads.txt
+	bwa mem -o $@ transposons/D_mel_transposon_sequence_set_v10.2.fa $^
