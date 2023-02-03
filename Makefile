@@ -24,8 +24,10 @@ MISC_3=${addprefix output/te_mapper/, ${addsuffix /sx4et51_reads.txt, ${SX4_FOR}
 MISC_4=${addprefix output/bwa_genome/, ${addsuffix /genome_aligned.sam, ${SX4_FOR} ${SX4_REV}}}
 MISC_5=${addprefix output/bwa_genome/, ${addsuffix /sx4et51_reads.txt, ${SX4_FOR} ${SX4_REV}}}
 MISC_6=output/bwa_genome/7_R1_001/manual_transposon_alignments.txt
+MISC_7=${addprefix output/te_mapper/, ${addsuffix /sx4et51_reads.csv, ${SX4_FOR} ${SX4_REV}}}
+MISC_8=${addprefix output/te_mapper/, ${addsuffix /figure_sx4et51_upstream.png, ${SX4_FOR} ${SX4_REV}}}
 
-TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1} ${MISC_2} ${MISC_3} ${MISC_4} ${MISC_5} ${MISC_6}
+TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1} ${MISC_2} ${MISC_3} ${MISC_4} ${MISC_5} ${MISC_6} ${MISC_7} ${MISC_8}
 
 all: ${TARGETS}
 
@@ -72,3 +74,11 @@ output/bwa_genome/%/sx4et51_reads.txt: scripts/get_sx4et51_genome_reads.py outpu
 # perform alignment of manually trimmed genome reads
 output/bwa_genome/7_R1_001/manual_transposon_alignments.txt: output/bwa_genome/7_R1_001/manually_trimmed_reads.txt
 	bwa mem -o $@ transposons/D_mel_transposon_sequence_set_v10.2.fa $^
+
+# create CSV files for SX4Et51 upstream reads
+output/te_mapper/%/sx4et51_reads.csv: scripts/mk_sx4et51_upstream_csv.py output/te_mapper/%/sx4et51_reads.txt
+	python3 $< ${lastword ${subst /, , ${dir $@}}}
+
+# create figures for SX4Et51 upstream reads
+output/te_mapper/%/figure_sx4et51_upstream.png: scripts/mk_sx4et51_upstream_diagrams.py output/te_mapper/%/sx4et51_reads.txt
+	python3 $< ${lastword ${subst /, , ${dir $@}}}

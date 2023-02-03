@@ -1,0 +1,8 @@
+Name,TE Name,Chromosome,Upstream Position,Downstream Position,Orientation,Reference?,Upstream Reads (TE Range),,Upstream Reads (Genome Range),,Downstream Reads (TE Range),,Downstream Reads (Genome Range),
+SX4Et51,copia#LTR/Copia,2R,9237984,,+/+,non-reference,,,,,,,,
+,,,,,,,49,150,1,48,,,,
+,,,,,,,47,150,1,46,,,,
+,,,,,,,79,150,1,78,,,,
+,,,,,,,35,150,1,34,,,,
+,,,,,,,54,150,1,53,,,,
+,,,,,,,49,150,1,48,,,,
