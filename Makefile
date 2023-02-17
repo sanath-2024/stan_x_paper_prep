@@ -26,6 +26,7 @@ MISC_5=${addprefix output/bwa_genome/, ${addsuffix /sx4et51_reads.txt, ${SX4_FOR
 MISC_6=output/bwa_genome/7_R1_001/manual_transposon_alignments.txt
 MISC_7=${addprefix output/te_mapper/, ${addsuffix /sx4et51_reads.csv, ${SX4_FOR} ${SX4_REV}}}
 MISC_8=${addprefix output/te_mapper/, ${addsuffix /figure_sx4et51_upstream.png, ${SX4_FOR} ${SX4_REV}}}
+MISC_9=output/te_mapper/split_read_sequence_table.csv
 
 TARGETS=${SX4_COV} ${SX4_TE_MAP} ${MISC_1} ${MISC_2} ${MISC_3} ${MISC_4} ${MISC_5} ${MISC_6} ${MISC_7} ${MISC_8}
 
@@ -82,3 +83,7 @@ output/te_mapper/%/sx4et51_reads.csv: scripts/mk_sx4et51_upstream_csv.py output/
 # create figures for SX4Et51 upstream reads
 output/te_mapper/%/figure_sx4et51_upstream.png: scripts/mk_sx4et51_upstream_diagrams.py output/te_mapper/%/sx4et51_reads.txt
 	python3 $< ${lastword ${subst /, , ${dir $@}}}
+
+# make split read sequence table
+output/te_mapper/split_read_sequence_table.csv: scripts/make_split_read_sequence_table.py ${SX4_TE_MAP}
+	python3 $<
